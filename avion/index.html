@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Porco Rosso Simulator</title>
+    <title>fly Simulator</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
@@ -11,7 +11,7 @@
             left: 10px;
             color: white;
             font-family: Arial;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.227);
             padding: 10px;
             border-radius: 5px;
         }
@@ -26,13 +26,14 @@
             padding: 20px;
             border-radius: 10px;
         }
+        a {text-decoration:none;color:aquamarine;}
     </style>
 </head>
 <body>
     <div id="ui">
         CONTROLES : ↑/↓ Accélérer/Décélérer - ←/→ Tourner (roulis 35°) - S/X Monter/Descendre
     </div>
-    <div id="loading">Chargement de l'avion...</div>
+    <div id="loading">Chargement de l'avion... <a href="https://berru-g.github.io/berru-g/">by berru-g</a></div>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>

@@ -21,7 +21,7 @@ loader.load(
     'https://raw.githubusercontent.com/berru-g/plane/main/avion/cessna172.glb',
     (gltf) => {
         airplane = gltf.scene;
-        airplane.scale.set(7, 7, 7);
+        airplane.scale.set(10, 10, 10);
         airplane.rotation.Y = Math.PI;
         airplane.rotation.set(Math.PI, Math.PI, 0);
         scene.add(airplane);
@@ -61,7 +61,7 @@ function resetPosition() {
 }
 
 // 5. Environnement - TEXTURES ET LACS (NOUVEAU)
-const textureLoader = new THREE.TextureLoader();
+const textureLoader = new THREE.TextureLoader(); //https://raw.githubusercontent.com/kenneyassets/NatureKit/textures/Ground037_1K_Color.png
 const grassTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/terrain/grasslight-big.jpg');
 grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
 grassTexture.repeat.set(30, 30);
