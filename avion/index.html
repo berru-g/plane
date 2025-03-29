@@ -2,11 +2,13 @@
 <html>
 
 <head>
-    <title>fly Simulator 90's style</title>
+    <title>Fly Simulator 90's style</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
+            background: #000;
+            font-family: 'Courier New', monospace;
         }
 
         canvas {
@@ -15,13 +17,18 @@
 
         #ui {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-family: Arial;
-            background: rgba(0, 0, 0, 0.227);
-            padding: 10px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #f1f1f1;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
             border-radius: 5px;
+            border: 1px solid #f1f1f1;
+            text-align: center;
+            font-size: 14px;
+            
         }
 
         #loading {
@@ -29,16 +36,148 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: white;
-            font-size: 20px;
-            background-color: rgb(75, 75, 224);
-            padding: 20px;
+            color: #f1f1f1;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px 30px;
             border-radius: 10px;
+            border: 1px solid #f1f1f1;
         }
 
         a {
             text-decoration: none;
-            color: aquamarine;
+            color: #7678ED;
+        }
+
+        /* HUD style années 90 */
+        #hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #f1f1f1;
+            font-family: 'Courier New', monospace;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #f1f1f1;
+            z-index: 100;
+        }
+
+        .hud-item {
+            margin: 8px 0;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            min-width: 200px;
+        }
+
+        .hud-label {
+            color: #f1f1f1;
+        }
+
+        .hud-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* Artificial Horizon amélioré */
+        #artificial-horizon {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 2px solid #f1f1f1;
+            overflow: hidden;
+            box-shadow: 0 0 10px #f1f1f1;
+        }
+
+        #sky {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom, #3D348B, #7678ED);
+        }
+
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, #F7B801, #F18701);
+        }
+
+        #horizon-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background-color: #f1f1f1;
+            top: 50%;
+            transform-origin: center;
+            box-shadow: 0 0 5px #f1f1f1;
+        }
+
+        .horizon-mark {
+            position: absolute;
+            width: 30%;
+            height: 2px;
+            background-color: #f1f1f1;
+            left: 35%;
+        }
+
+        /* Compass */
+        #compass {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 120px;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #f1f1f1;
+            border-radius: 15px;
+            overflow: hidden;
+            text-align: center;
+            line-height: 30px;
+            color: #f1f1f1;
+            font-weight: bold;
+        }
+
+        /* Vitesse verticale */
+        #vsi {
+            position: fixed;
+            right: 30px;
+            bottom: 270px;
+            width: 30px;
+            height: 100px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #f1f1f1;
+            border-radius: 3px;
+        }
+
+        #vsi-indicator {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background-color: #f1f1f1;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Cadre autour de l'écran */
+        #screen-frame {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            border: 15px solid transparent;
+            border-image: linear-gradient(45deg, #f1f1f1 25%, transparent 25%, transparent 75%, #f1f1f1 75%) 10;
+            box-shadow: inset 0 0 20px #f1f1f1, 0 0 20px #f1f1f1;
+            z-index: 200;
         }
     </style>
 </head>
@@ -51,13 +190,52 @@
     <script>
         document.getElementById('windSound').volume = 0.3;
         window.addEventListener('click', () => {
-            document.getElementById('windSound').play(); // Démarre au premier clic
+            document.getElementById('windSound').play();
         });
     </script>
+
     <div id="ui">
         CONTROLES : ⬆️⬇️ Accélérer/Décélérer - ⬅️➡️ Tourner - S/X Monter/Descendre
     </div>
-    <div id="loading">fly Simulator 90's style <a href="https://berru-g.github.io/berru-g/">by berru-g</a> Chargement...</div>
+
+    <div id="loading">
+        FLY SIMULATOR 90'S STYLE <a href="https://berru-g.github.io/berru-g/">by berru-g</a><br>
+        CHARGEMENT EN COURS...
+    </div>
+
+    <div id="hud">
+        <div class="hud-item">
+            <span class="hud-label">ALTITUDE:</span>
+            <span class="hud-value" id="altitude">0</span><span>m</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">VITESSE:</span>
+            <span class="hud-value" id="speed">0</span><span>km/h</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">INCLINAISON:</span>
+            <span class="hud-value" id="pitch">0</span><span>°</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">ROULIS:</span>
+            <span class="hud-value" id="roll">0</span><span>°</span>
+        </div>
+    </div>
+
+    <div id="compass"><a href="../index.html">Home</a></div>
+
+    <div id="artificial-horizon">
+        <div id="sky"></div>
+        <div id="ground"></div>
+        <div class="horizon-mark" style="top: 25%;"></div>
+        <div class="horizon-mark" style="top: 75%;"></div>
+        <div id="horizon-line"></div>
+    </div>
+
+    <div id="vsi">
+        <div id="vsi-indicator"></div>
+    </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>

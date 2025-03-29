@@ -19,7 +19,7 @@ const maxRollAngle = THREE.MathUtils.degToRad(35); // 35° de roulis
 const audioListener = new THREE.AudioListener();
 camera.add(audioListener);
 
-// Sons directionnels
+// Sons directionnels (utilisant des sons libres de droit)
 const soundLoader = new THREE.AudioLoader();
 const sounds = {
     left: new THREE.PositionalAudio(audioListener),
@@ -29,6 +29,7 @@ const sounds = {
     engine: new THREE.PositionalAudio(audioListener)
 };
 
+// Chargement des sons (remplacez par vos URLs)
 soundLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/prop-plane-14513.mp3', (buffer) => {
     sounds.left.setBuffer(buffer);
     sounds.left.setRefDistance(20);
@@ -65,6 +66,7 @@ loader.load(
         airplane.scale.set(14, 14, 14);
         airplane.rotation.set(Math.PI, Math.PI, 0);
 
+        // Attacher les sons à l'avion
         airplane.add(sounds.left);
         airplane.add(sounds.right);
         airplane.add(sounds.up);
@@ -120,8 +122,8 @@ const waterTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoo
 waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
 
 // Ciel
-const skyTexture = textureLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/golden_gate_hills_4k.exr');
-const skyGeometry = new THREE.SphereGeometry(7000, 64, 64);
+const skyTexture = textureLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/sunrise.jpg');
+const skyGeometry = new THREE.SphereGeometry(5000, 32, 32);
 const skyMaterial = new THREE.MeshBasicMaterial({
     color: 0x87CEEB,
     side: THREE.BackSide
@@ -195,7 +197,7 @@ const cloudTexture = new THREE.TextureLoader().load('https://github.com/berru-g/
 const cloudMaterial = new THREE.MeshLambertMaterial({
     map: cloudTexture,
     transparent: true,
-    opacity: 0.3
+    opacity: 0.8
 });
 const fog = new THREE.FogExp2(0x87CEEB, 0.0005);
 scene.fog = fog;
@@ -226,109 +228,60 @@ function animateClouds() {
     });
 }
 
-// NOUVEAU : Génération procédurale du terrain
-function generateProceduralTerrain() {
-    const groundGeometry = new THREE.PlaneGeometry(20000, 20000, 200, 200);
-    groundGeometry.rotateX(-Math.PI / 2);
-    const positions = groundGeometry.attributes.position;
-    
-    // Seed aléatoire pour la cohérence
-    const seed = Math.floor(Math.random() * 10000);
-    
-    // Fonction de bruit améliorée
-    function noise(x, z) {
-        x = x * 0.01 + seed;
-        z = z * 0.01 + seed;
-        return Math.sin(x) * Math.cos(z) * 1.5 + 
-               Math.sin(x * 0.5) * Math.cos(z * 0.5) * 0.8 +
-               Math.sin(x * 0.2) * Math.cos(z * 0.2) * 0.3;
-    }
-    
-    // Génération des hauteurs
-    for (let i = 0; i < positions.count; i++) {
-        const x = positions.getX(i);
-        const z = positions.getZ(i);
-        
-        // Base aléatoire
-        let y = noise(x, z) * 100;
-        
-        // Ajout de caractéristiques naturelles
-        y += Math.max(0, noise(x * 1.5, z * 1.5) * 50); // Collines
-        y -= Math.abs(noise(x * 0.3, z * 0.3) * 30);   // Vallées
-        
-        // Position Y finale
-        positions.setY(i, y - 50);
-    }
-    
-    groundGeometry.computeVertexNormals();
-    
-    const ground = new THREE.Mesh(
-        groundGeometry,
-        new THREE.MeshStandardMaterial({
-            map: grassTexture,
-            side: THREE.DoubleSide,
-            roughness: 0.8,
-            metalness: 0.1
-        })
-    );
-    ground.position.y = -50;
-    scene.add(ground);
-    
-    // Génération procédurale des lacs
-    function generateLakes() {
-        const lakeMaterial = new THREE.MeshStandardMaterial({
-            color: 0x1a8cff,
-            transparent: true,
-            opacity: 0.8,
-            roughness: 0.1,
-            metalness: 0.5,
-            normalMap: waterTexture
-        });
-        
-        // Crée 3-5 lacs dans les zones basses
-        for (let i = 0; i < 4 + Math.floor(Math.random() * 2); i++) {
-            const lakeGeometry = new THREE.PlaneGeometry(1, 1);
-            const lake = new THREE.Mesh(lakeGeometry, lakeMaterial);
-            
-            // Position aléatoire
-            const x = (Math.random() - 0.5) * 18000;
-            const z = (Math.random() - 0.5) * 20000;
-            
-            // Taille aléatoire
-            const size = 800 + Math.random() * 1500;
-            lake.scale.set(size, size, 1);
-            
-            // Trouve le point le plus bas dans la zone
-            let minY = 0;
-            for (let j = 0; j < 10; j++) {
-                const testY = noise(x + (Math.random() - 0.5) * 500, 
-                                  z + (Math.random() - 0.5) * 500) * 100 - 50;
-                if (testY < minY) minY = testY;
-            }
-            
-            if (minY < 12) { // Seulement si c'est assez bas
-                lake.rotation.x = -Math.PI / 2;
-                lake.position.set(x, minY + 1, z);
-                scene.add(lake);
-            }
-        }
-    }
-    
-    generateLakes();
-    
-    return ground;
+// Sol avec collines
+const groundGeometry = new THREE.PlaneGeometry(10000, 8000, 150, 100);
+groundGeometry.rotateX(-Math.PI / 2);
+const positions = groundGeometry.attributes.position;
+for (let i = 0; i < positions.count; i++) {
+    const x = positions.getX(i);
+    const z = positions.getZ(i);
+    positions.setY(i, Math.sin(x * 0.01) * 20 + Math.cos(z * 0.01) * 20);
 }
+positions.needsUpdate = true;
 
-// Génère le terrain procédural
-generateProceduralTerrain();
+const ground = new THREE.Mesh(
+    groundGeometry,
+    new THREE.MeshStandardMaterial({
+        map: grassTexture,
+        side: THREE.DoubleSide,
+        roughness: 0.8
+    })
+);
+ground.position.y = -50;
+scene.add(ground);
+
+// Lacs
+const waterMaterial = new THREE.MeshStandardMaterial({
+    color: 0x1a8cff,
+    transparent: true,
+    opacity: 0.9,
+    roughness: 0.1,
+    metalness: 0.5,
+    normalMap: waterTexture
+});
+
+const lakes = [
+    { x: -1500, z: 2000, width: 800, height: 200, rotation: 0.2 },
+    { x: 1800, z: -1000, width: 1500, height: 800, rotation: -0.1 },
+    { x: 500, z: 2500, width: 5000, height: 5000, rotation: 0.4 }
+];
+
+lakes.forEach(lake => {
+    const lakeGeometry = new THREE.PlaneGeometry(lake.width, lake.height);
+    const lakeMesh = new THREE.Mesh(lakeGeometry, waterMaterial);
+    lakeMesh.rotation.x = -Math.PI / 2;
+    lakeMesh.rotation.z = lake.rotation;
+    lakeMesh.position.set(lake.x, -48, lake.z);
+    scene.add(lakeMesh);
+});
 
 // 7. Contrôles
 const controls = {
-    speed: 1,
-    maxSpeed: 10,
+    speed: 0.5,
+    maxSpeed: 7,
     minSpeed: 0.1,
     turnSpeed: 0.02,
-    pitchSpeed: 0.2,
+    pitchSpeed: 0.015,
     targetRoll: 0,
     keys: {},
     lastDirection: null
@@ -337,6 +290,7 @@ const controls = {
 document.addEventListener('keydown', (e) => {
     controls.keys[e.key.toLowerCase()] = true;
 
+    // Sons directionnels
     if (e.key === 'ArrowLeft' && sounds.left && !sounds.left.isPlaying) {
         sounds.left.play();
         controls.lastDirection = 'left';
@@ -487,23 +441,32 @@ function animate() {
     waterTexture.offset.x += 0.0005;
     waterTexture.offset.y += 0.0005;
 
-    // Mise à jour HUD
+    // Mise à jour de l'indicateur artificiel
     if (airplane) {
-        const altitude = Math.max(0, airplane.position.y - (-50));
-        document.getElementById('altitude').textContent = Math.round(altitude);
-        document.getElementById('speed').textContent = Math.round(controls.speed * 20);
-        document.getElementById('pitch').textContent = Math.round(THREE.MathUtils.radToDeg(airplane.rotation.x));
-        document.getElementById('roll').textContent = Math.round(THREE.MathUtils.radToDeg(airplane.rotation.z));
-
-        // Artificial Horizon
         const horizon = document.getElementById('horizon-line');
-        const skyElement = document.getElementById('sky');
-        const groundElement = document.getElementById('ground');
+        const sky = document.getElementById('sky');
+        const ground = document.getElementById('ground');
+
+        // Convertir les angles en degrés
         const pitch = THREE.MathUtils.radToDeg(airplane.rotation.x);
         const roll = THREE.MathUtils.radToDeg(airplane.rotation.z);
+
+        // Appliquer les transformations
         horizon.style.transform = `rotate(${roll}deg) translateY(${pitch * 0.5}px)`;
-        skyElement.style.height = `${50 + pitch * 0.25}%`;
-        groundElement.style.height = `${50 - pitch * 0.25}%`;
+        sky.style.height = `${50 + pitch * 0.25}%`;
+        ground.style.height = `${50 - pitch * 0.25}%`;
+    }
+
+    // Mise à jour du HUD
+    if (airplane) {
+        const altitude = Math.max(0, airplane.position.y - (-50 + Math.sin(airplane.position.x * 0.01) * 10 + Math.cos(airplane.position.z * 0.01) * 10));
+        document.getElementById('altitude').textContent = Math.round(altitude);
+        // Vitesse (convertie en km/h pour plus de réalisme)
+        document.getElementById('speed').textContent = Math.round(controls.speed * 20);
+        // Inclinaison (pitch en degrés)
+        document.getElementById('pitch').textContent = Math.round(THREE.MathUtils.radToDeg(airplane.rotation.x));
+        // Roulis (roll en degrés)
+        document.getElementById('roll').textContent = Math.round(THREE.MathUtils.radToDeg(airplane.rotation.z));
     }
 
     animateClouds();
@@ -523,7 +486,49 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Effet d'écran vieillot
+// 
+function updateHUD(airplane, controls) {
+    if (!airplane) return;
+
+    // Altitude
+    const altitude = Math.max(0, airplane.position.y - (-50 + Math.sin(airplane.position.x * 0.01) * 20 + Math.cos(airplane.position.z * 0.01) * 20));
+    document.getElementById('altitude').textContent = Math.round(altitude);
+
+    // Vitesse
+    document.getElementById('speed').textContent = Math.round(controls.speed * 180);
+
+    // Inclinaison
+    const pitch = THREE.MathUtils.radToDeg(airplane.rotation.x);
+    document.getElementById('pitch').textContent = Math.round(pitch);
+
+    // Roulis
+    const roll = THREE.MathUtils.radToDeg(airplane.rotation.z);
+    document.getElementById('roll').textContent = Math.round(roll);
+
+    // Artificial Horizon
+    const horizon = document.getElementById('horizon-line');
+    const sky = document.getElementById('sky');
+    const ground = document.getElementById('ground');
+
+    horizon.style.transform = `rotate(${roll}deg) translateY(${pitch * 0.5}px)`;
+    sky.style.height = `${50 - pitch * 0.25}%`;
+    ground.style.height = `${50 + pitch * 0.25}%`;
+
+    // Compass
+    const heading = THREE.MathUtils.radToDeg(airplane.rotation.y) % 360;
+    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    const index = Math.round(((heading < 0 ? 360 + heading : heading) / 45)) % 8;
+    document.getElementById('compass').textContent = `${Math.round(heading)}° ${directions[index]}`;
+
+    // VSI (Vitesse Verticale)
+    const vsi = airplane.position.y - (lastAltitude || airplane.position.y);
+    document.getElementById('vsi-indicator').style.top = `${50 - vsi * 5}%`;
+    lastAltitude = airplane.position.y;
+}
+
+let lastAltitude = 0;
+
+// Fait clignoter aléatoirement les valeurs pour simuler un vieil écran
 setInterval(() => {
     if (Math.random() > 0.9) {
         document.querySelectorAll('.hud-value').forEach(el => {
@@ -531,3 +536,4 @@ setInterval(() => {
         });
     }
 }, 300);
+
