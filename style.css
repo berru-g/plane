@@ -1,0 +1,482 @@
+:root {
+  --rotateX: 0deg;
+  --rotateY: 0deg;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: monospace;
+}
+
+.room-canvas {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  position: absolute;
+  align-content: center;
+  top: 0;
+  left: 0;
+  background-color: #111;
+}
+
+.room-wrap {
+  margin: 0;
+  padding: 0;
+  perspective: 100vmin;
+  height: 100vh;
+  max-width: 150vh;
+  max-height: 150vw;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: inline-size;
+  margin: 0 auto;
+  --depth: 50cqw;
+  --cubescale: 20vmin;
+}
+
+.room {
+  width: 100vw;
+  height: 100vh;
+  max-height: 150vw;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rotateX)) rotateY(var(--rotateY));
+  transition: transform 0.1s;
+  z-index: 1;
+  pointer-events: none;
+  font-size: 5vmin;
+  user-select: none;
+}
+
+.room > div {
+  position: absolute;
+  pointer-events: auto;
+  display: grid;
+  align-content: center;
+  text-align: center;
+  color: white;
+  transform-style: preserve-3d;
+}
+
+.room .wall {
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.5s ease;
+  z-index: 2;
+  backface-visibility: hidden;
+  background-color: #333;
+  box-shadow: inset 0 0 5vmin rgba(0, 0, 0, 0.5), inset 0 0 15vmin rgba(0, 0, 0, 0.5);
+  border: 3px solid #222;
+  /*background-image: url('./img/PavingStones092_1K-JPG_Color.jpg');*/
+  background-position: bottom center;
+  background-size: auto 115%;
+}
+
+.room > div > b {
+  display: block;
+  margin: 0 auto;
+  padding: 1em;
+  border: 0.15em solid;
+  background: rgba(255, 255, 255, 0.25);
+  text-shadow: 0.1em 0.1em black;
+  position: relative;
+  text-transform: uppercase;
+  align-content: center;
+}
+
+.wall-back,
+.wall-front,
+.wall-top,
+.wall-bottom {
+  width: 100%;
+  height: 100%;
+}
+
+.wall-left,
+.wall-right {
+  width: 100%;
+  height: 100%;
+  top: 0;
+}
+/* full wall */
+.wall-back {
+  transform: translateZ(calc(-1 * var(--depth)));
+  background-color: orange;
+  background-image: url('./img/porte1.jpg');
+}
+
+.wall-front {
+  transform: translateZ(calc(1 * var(--depth))) rotateY(180deg);
+  background-color: red;
+  background-image: url('./img/mur-fenetre.jpg');
+}
+
+.wall-left {
+  left: 0;
+  transform: rotateY(90deg) translateX(calc(-1 * var(--depth)));
+  transform-origin: left;
+  background-color: green;
+  background-image: url('./img/PavingStones092_1K-JPG_Color.jpg');
+}
+
+.wall-right {
+  right: 0;
+  transform: rotateY(-90deg) translateX(calc(1 * var(--depth)));
+  transform-origin: right;
+  background-color: magenta;
+  background-image: url('./img/brique-fenetre.jpg');
+}
+
+.room .wall-top {
+  top: 0;
+  height: calc(2 * var(--depth));
+  transform: rotateX(90deg) translateY(calc(-1 * var(--depth))) rotateY(180deg);
+  transform-origin: top;
+  background-image: url("https://assets.codepen.io/5896374/tex-ceiing.jpg");
+  background-size: 75%;
+  background-repeat: repeat;
+  background-position: top right;
+}
+
+.room .wall-bottom {
+  bottom: 0;
+  height: calc(2 * var(--depth));
+  transform: rotateX(-90deg) translateY(calc(1 * var(--depth))) rotateY(180deg);
+  transform-origin: bottom;
+  background-image: url("./img/parquet.jpg");
+  background-size: 75%;
+  background-repeat: repeat;
+  background-position: top right;
+}
+
+.room-nav {
+  position: absolute;
+  z-index: 9;
+  bottom: 10px;
+  left: 10px;
+  height: 0;
+  width: calc(100% - 20px);
+}
+
+.room-nav button {
+  position: absolute;
+  bottom: 0;
+  appearance: none;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.4em;
+  cursor: pointer;
+  font-size: 2em;
+  transition: all 0.3s ease;
+  background-color: #454954;
+  background-image: linear-gradient(180deg, #0000, #0002),
+    radial-gradient(90% 0.125em at 50% 0.125em, #fff7 25%, #fff0 50%);
+  box-shadow: 0.125em 0.125em 0.25em #0007, 0 -0.05em 0 0.05em #0004,
+    0 0.05em 0 0.05em #fff1, -0.125em 0 0.125em #454954 inset,
+    0 0.125em 0.125em #fff4 inset, 0.125em 0 0.125em #fff4 inset,
+    0 -0.125em 0.125em #454954 inset;
+  color: #e3e4e8;
+  text-shadow: 0 0 0.125em #fff7, 0 0.125em 0 black;
+  border: 0px outset #454954;
+  border-radius: 0.25em;
+}
+
+.room-nav button:hover {
+  filter: brightness(1.2) contrast(1.2);
+}
+
+.room-nav button:not(:active) {
+  border-bottom-width: 0.1em;
+  height: 1.6em;
+}
+
+.room-nav button:active {
+  box-shadow: 0 0 0 #0007, 0 -0.05em 0 0.05em #0004, 0 0.05em 0 0.05em #fff1,
+    -0.125em 0 0.125em #5c6270 inset, 0 0.125em 0.125em #0004 inset,
+    0.125em 0 0.125em #0004 inset, 0 -0.125em 0.125em #5c6270 inset;
+}
+
+.room-nav #turnLeft {
+  left: 0;
+}
+
+.room-nav #turnRight {
+  right: 0;
+}
+
+.room-nav .hidden {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  font-size: 0;
+  overflow: hidden;
+}
+
+.room-wrap.rotating *,
+.room-wrap.rotating {
+  pointer-events: none;
+}
+
+.room-wrap.rotating .room {
+  transition: transform 0.5s ease;
+}
+
+.room-wrap.back-view {
+  --rotateY: 0deg;
+}
+.room-wrap.left-view {
+  --rotateY: 90deg;
+}
+.room-wrap.front-view {
+  --rotateY: 180deg;
+}
+.room-wrap.right-view {
+  --rotateY: 270deg;
+}
+.back-view .wall-front,
+.front-view .wall-back,
+.left-view .wall-right,
+.right-view .wall-left {
+  pointer-events: none;
+}
+
+.room {
+  transform: rotateX(var(--rotateX)) rotateY(var(--rotateY));
+}
+
+
+.cube {
+  width: var(--cubescale);
+  height: var(--cubescale);
+  position: absolute;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.cube > div {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  pointer-events: auto;
+  /*background-image: url('./img/osier.jpg'); */
+  background-size: cover;
+  box-shadow: inset 0 0 calc(0.25 * var(--cubescale)) rgba(0, 0, 0, 0.5), inset 0 0 calc(0.15 * var(--cubescale)) 0.1em rgba(0, 0, 0, 0.25);
+  border: 2px solid #352a23;
+}
+
+.cube-top {
+  transform: rotateX(90deg) translateZ(calc(var(--cubescale) / 2));
+  background-color: rgba(255, 0, 0, 0.7);
+  background-image: url('./img/osier.jpg');
+}
+
+.cube-bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--cubescale) / 2));
+  background-color: rgba(0, 255, 0, 0.7);
+  background-image: url('./img/osier.jpg');
+}
+
+.cube-front {
+  transform: translateZ(calc(var(--cubescale) / 2));
+  background-color: rgba(0, 0, 255, 0.7);
+  background-image: url('./img/osier.jpg');
+}
+
+.cube-back {
+  transform: rotateY(180deg) translateZ(calc(var(--cubescale) / 2));
+  background-color: rgba(255, 255, 0, 0.7);
+  background-image: url('./img/livres.png');
+}
+
+.cube-left {
+  transform: rotateY(-90deg) translateZ(calc(var(--cubescale) / 2));
+  background-color: rgba(0, 255, 255, 0.7);
+  background-image: url('./img/osier.jpg');
+}
+
+.cube-right {
+  transform: rotateY(90deg) translateZ(calc(var(--cubescale) / 2));
+  background-color: rgba(255, 0, 255, 0.7);
+  background-image: url('./img/osier.jpg');
+}
+
+.cube-2 {
+  bottom: 0;
+  transform: translateZ(calc(var(--depth) - calc(0.5 * var(--cubescale)))) translateX(var(--cubescale));
+}
+.cube-3 {
+  bottom: 0;
+  transform: translateZ(calc(var(--depth) - calc(1.5 * var(--cubescale))));
+}
+.cube-4 {
+  bottom: var(--cubescale);
+  transform: translateZ(calc(var(--depth) - calc(0.5 * var(--cubescale))));
+}
+
+.cube-5 {
+  --cubescale: 30vmin;
+  right: 0;
+  bottom: 0;
+  transform: translateZ(calc(var(--depth) - calc(0.5 * var(--cubescale))));
+}
+
+.cube-6 {
+  bottom: calc(2 * var(--cubescale));
+  right: calc(0.5 * var(--cubescale));
+  transform: translateZ(calc(var(--depth) - var(--cubescale)));
+  --cubescale: 15vmin;
+}
+
+.lamp {
+  background-image: url('https://assets.codepen.io/5896374/lamp.png');
+  background-size: contain;
+  background-position: top center;
+  background-repeat: no-repeat;
+  width: calc(var(--depth) * 0.5);
+  height: calc(var(--depth) * 0.5);
+  pointer-events: none;
+  left: calc(50% - calc(var(--depth) * 0.25));
+  transform-origin: top center;
+}
+
+.fan {
+  width: 8px;
+  height: 10vh;
+  background: #222;
+  left: calc(50% - 4px);
+  transform-origin: top center;
+  animation: fanSpin 5s linear infinite;
+}
+.fan::after,
+.fan::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  transform: rotateY(60deg);
+}
+.fan::before {
+  transform: rotateY(-60deg);
+}
+
+.blades {
+  position: absolute;
+  left: calc((-0.25 * var(--depth)) + 4px);
+  top: 100%;
+  width: calc(0.5 * var(--depth));
+  height: calc(0.5 * var(--depth));
+  transform: rotateX(90deg) translateY(-50%);
+  transform-origin: top center;
+  background-image: url('https://assets.codepen.io/5896374/fan-blades.png');
+  background-position: center;
+  background-size: contain;
+  border-radius: 100%;
+}
+
+@keyframes fanSpin {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+.room .cage-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: bottom center;
+  transform: translateZ(calc(-0.65 * var(--depth)));
+  pointer-events: none;
+  transform-style: preserve-3d;
+  transition: all 0.3s ease !important;
+}
+
+.cage {
+  position: absolute;
+  bottom: -3%;
+  width: calc(0.5 * var(--depth));
+  left: 15%;
+  height: 70vmin;
+  transform-origin: bottom center;
+  background-image: url('./img/plant.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  transition: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 10;
+}
+/*
+.cage:hover {
+  filter: brightness(1.15) contrast(1.15) drop-shadow(0 4px 8px red);
+}
+*/
+.right-view .cage-wrap,
+.front-view .cage-wrap {
+  pointer-events: none;
+  top: 100%;
+  left: 0;
+  visibility: hidden;
+}
+
+
+.cage-wrap .cube {
+  --cubescale: 13vmin;
+  bottom: 54vmin;
+  left: 35vmin;
+  animation: fanSpin 3s linear infinite reverse;
+  transition: inherit;
+  pointer-events: none;
+}
+.cage-wrap .cube > div {
+  background-image: url("");
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.face {
+  transform: rotate(0deg);
+}
+.left-view .face {
+  transform: rotateY(90deg);
+}
+.right-view .face {
+  transform: rotateY(-90deg);
+}
+
+a {
+  color: white;
+  text-decoration: none;
+}
+
+.cadre1 {
+  width: 20%;
+  height: auto;
+  box-shadow: -7px 8px 0px -1px rgba(11, 11, 11, 0.523);
+}
+.porte1 {
+  width: auto; /* Largeur automatique */
+  height: 90%; /* Ajuste selon la taille de la porte */
+  position: absolute;
+  bottom: 0; /* Colle la porte en bas */
+  left: 50%; /* Centre horizontalement */
+  transform: translateX(-50%); /* Ajuste pour centrer */
+}
