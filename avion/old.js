@@ -1,6 +1,6 @@
 // 1. Initialisation
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -19,19 +19,11 @@ const maxRollAngle = THREE.MathUtils.degToRad(35); // 35° de roulis
 const loader = new THREE.GLTFLoader();
 loader.load(
     'https://raw.githubusercontent.com/berru-g/plane/main/avion/cessna172.glb',
-    //'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Parrot.glb',
     (gltf) => {
         airplane = gltf.scene;
-        
-        // 1. Taille (déjà bon avec 0.05)
-        airplane.scale.set(7, 7, 7);
-
-        // Rotation de 180° sur l'axe X (comme retourner une feuille)
-        airplane.rotation.Y = Math.PI; // ← Ligne clé
-        
-        // 2. Correction rotation initiale
-        airplane.rotation.set(Math.PI, Math.PI, 0); // X:180° + Y:180°
-        
+        airplane.scale.set(10, 10, 10);
+        airplane.rotation.Y = Math.PI;
+        airplane.rotation.set(Math.PI, Math.PI, 0);
         scene.add(airplane);
         document.getElementById('loading').style.display = 'none';
     },
@@ -39,20 +31,15 @@ loader.load(
     (error) => console.error(error)
 );
 
-
 function createFallbackAirplane() {
-    // Modèle de secours (cube stylisé)
     airplane = new THREE.Group();
-    
-    // Corps
     const body = new THREE.Mesh(
         new THREE.CylinderGeometry(0.5, 0.3, 3, 8),
         new THREE.MeshPhongMaterial({ color: 0xff0000 })
     );
-    body.rotation.z = Math.PI/2;
+    body.rotation.z = Math.PI / 2;
     airplane.add(body);
 
-    // Ailes
     const wing = new THREE.Mesh(
         new THREE.BoxGeometry(4, 0.1, 1.5),
         new THREE.MeshPhongMaterial({ color: 0xcccccc })
@@ -67,25 +54,93 @@ function createFallbackAirplane() {
 function resetPosition() {
     if (airplane) {
         airplane.position.set(0, 100, 0);
-        airplane.rotation.set(0, Math.PI, 0); // Reset rotation
+        airplane.rotation.set(0, Math.PI, 0);
     }
     camera.position.set(0, 0, -10);
     camera.lookAt(0, 0, 0);
 }
 
-// 5. Environnement
-// Ciel
+// 5. Environnement - TEXTURES ET LACS (NOUVEAU)
+const textureLoader = new THREE.TextureLoader(); //https://raw.githubusercontent.com/kenneyassets/NatureKit/textures/Ground037_1K_Color.png
+const grassTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/terrain/grasslight-big.jpg');
+grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
+grassTexture.repeat.set(30, 30);
+
+const waterTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/waternormals.jpg');
+waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
+
+// Ciel (existant)
 const skyGeometry = new THREE.SphereGeometry(5000, 32, 32);
-const skyMaterial = new THREE.MeshBasicMaterial({ 
-    color: 0x87CEEB, 
-    side: THREE.BackSide 
+const skyMaterial = new THREE.MeshBasicMaterial({
+    color: 0x87CEEB,
+    side: THREE.BackSide
 });
 const sky = new THREE.Mesh(skyGeometry, skyMaterial);
 scene.add(sky);
 
-// Sol avec collines
+// ▲▲▲ ÉTOILES ▲▲▲
+const starsGeometry = new THREE.BufferGeometry();
+const starsMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 0.5 });
+const starsPositions = [];
+
+for (let i = 0; i < 10000; i++) {
+    starsPositions.push(
+        Math.random() * 2000 - 1000,
+        Math.random() * 2000 - 1000,
+        Math.random() * 2000 - 1000
+    );
+}
+
+starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsPositions, 3));
+const stars = new THREE.Points(starsGeometry, starsMaterial);
+stars.visible = false;
+scene.add(stars);
+
+
+// ▲▲▲ NUAGES ET CIEL AMÉLIORÉ ▲▲▲
+// 1. Nouveau ciel avec dégradé //
+const skyTexture = new THREE.TextureLoader().load('https://github.com/berru-g/assoberru/main/src-img/cosmos.png?raw=true');
+scene.background = new THREE.Color(0x87CEEB);
+scene.background = skyTexture;
+
+// 2. Nuages (particules)
+const cloudTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/cloud.png');
+const cloudMaterial = new THREE.MeshLambertMaterial({
+    map: cloudTexture,
+    transparent: true,
+    opacity: 0.8
+});
+const fog = new THREE.FogExp2(0x87CEEB, 0.0005);
+scene.fog = fog;
+
+// Création de 50 nuages positionnés aléatoirement
+for (let i = 0; i < 50; i++) {
+    const cloud = new THREE.Mesh(
+        new THREE.PlaneGeometry(500, 500),
+        cloudMaterial
+    );
+    cloud.position.set(
+        Math.random() * 10000 - 5000,
+        Math.random() * 1000 + 500,
+        Math.random() * 10000 - 5000
+    );
+    cloud.rotation.x = Math.PI / 2; // Orientation horizontale
+    scene.add(cloud);
+}
+
+// 3. Animation des nuages (à ajouter dans animate())
+function animateClouds() {
+    scene.children.forEach(child => {
+        if (child.isMesh && child.material === cloudMaterial) {
+            child.position.x -= 0.1 * (1 + Math.random() * 0.5);
+            if (child.position.x < -6000) child.position.x = 6000;
+        }
+    });
+}
+// ▲▲▲ FIN DES AJOUTS ▲▲▲
+// Sol avec collines (modifié pour la texture)
 const groundGeometry = new THREE.PlaneGeometry(10000, 10000, 100, 100);
-groundGeometry.rotateX(-Math.PI/2);
+groundGeometry.rotateX(-Math.PI / 2);
 const positions = groundGeometry.attributes.position;
 for (let i = 0; i < positions.count; i++) {
     const x = positions.getX(i);
@@ -93,21 +148,48 @@ for (let i = 0; i < positions.count; i++) {
     positions.setY(i, Math.sin(x * 0.01) * 20 + Math.cos(z * 0.01) * 20);
 }
 positions.needsUpdate = true;
+
 const ground = new THREE.Mesh(
     groundGeometry,
-    new THREE.MeshPhongMaterial({ 
-        color: 0x3a5f0b,
+    new THREE.MeshStandardMaterial({
+        map: grassTexture,
         side: THREE.DoubleSide,
-        flatShading: true
+        roughness: 0.8
     })
 );
 ground.position.y = -50;
 scene.add(ground);
 
-// 6. Contrôles
+// Lacs (NOUVEAU)
+const waterMaterial = new THREE.MeshStandardMaterial({
+    color: 0x1a8cff,
+    transparent: true,
+    opacity: 0.8,
+    roughness: 0.1,
+    metalness: 0.5,
+    normalMap: waterTexture
+});
+
+const lakes = [
+    { x: -1500, z: 2000, width: 800, height: 200, rotation: 0.2 },
+    { x: 1800, z: -1000, width: 1500, height: 800, rotation: -0.1 },
+    { x: 500, z: 2500, width: 1000, height: 1000, rotation: 0 },
+    { x: -1000, z: 1900, width: 1200, height: 1800, rotation: 0.4 }
+];
+
+lakes.forEach(lake => {
+    const lakeGeometry = new THREE.PlaneGeometry(lake.width, lake.height);
+    const lakeMesh = new THREE.Mesh(lakeGeometry, waterMaterial);
+    lakeMesh.rotation.x = -Math.PI / 2;
+    lakeMesh.rotation.z = lake.rotation;
+    lakeMesh.position.set(lake.x, -48, lake.z);
+    scene.add(lakeMesh);
+});
+
+// 6. Contrôles (existant inchangé)
 const controls = {
     speed: 0.5,
-    maxSpeed: 4,
+    maxSpeed: 7,
     minSpeed: 0.1,
     turnSpeed: 0.02,
     pitchSpeed: 0.015,
@@ -115,7 +197,6 @@ const controls = {
     keys: {}
 };
 
-// 7. Gestion clavier
 document.addEventListener('keydown', (e) => {
     controls.keys[e.key.toLowerCase()] = true;
 });
@@ -124,103 +205,83 @@ document.addEventListener('keyup', (e) => {
     controls.keys[e.key.toLowerCase()] = false;
 });
 
-/* 8. Animation
+// 8. Animation (avec ajout animation eau)
 function animate() {
     requestAnimationFrame(animate);
-    
+
     if (!airplane) return;
 
-    // Contrôles de vitesse
+    // Contrôles existants inchangés...
     if (controls.keys['arrowup']) controls.speed = Math.min(controls.speed + 0.01, controls.maxSpeed);
     if (controls.keys['arrowdown']) controls.speed = Math.max(controls.speed - 0.01, controls.minSpeed);
 
-    // Roulis (effet de virage)
-    if (controls.keys['arrowleft']) controls.targetRoll = maxRollAngle;
-    else if (controls.keys['arrowright']) controls.targetRoll = -maxRollAngle;
-    else controls.targetRoll = 0;
-
-    // Lissage du roulis
-    airplane.rotation.z += (controls.targetRoll - airplane.rotation.z) * 0.1;
-
-    // Tangage (montée/descente)
-    if (controls.keys['s']) airplane.rotation.x -= controls.pitchSpeed;
-    if (controls.keys['x']) airplane.rotation.x += controls.pitchSpeed;
-
-    // Mouvement
-    const direction = new THREE.Vector3(0, 0, -1);
-    direction.applyQuaternion(airplane.quaternion);
-    airplane.position.add(direction.multiplyScalar(controls.speed));
-
-    // Caméra (vue derrière l'avion)
-    const cameraOffset = new THREE.Vector3(0, 3, 10);
-    cameraOffset.applyQuaternion(airplane.quaternion);
-    camera.position.copy(airplane.position).add(cameraOffset);
-    camera.lookAt(airplane.position);
-
-    renderer.render(scene, camera);
-}
-*/
-
-function animate() {
-    requestAnimationFrame(animate);
-    
-    if (!airplane) return;
-
-    // Contrôles de vitesse (inchangé)
-    if (controls.keys['arrowup']) controls.speed = Math.min(controls.speed + 0.01, controls.maxSpeed);
-    if (controls.keys['arrowdown']) controls.speed = Math.max(controls.speed - 0.01, controls.minSpeed);
-
-    // 1. Gestion du Roulis (35°) + Rotation Y coordonnée
     if (controls.keys['arrowleft']) {
         controls.targetRoll = maxRollAngle;
-        airplane.rotation.y += controls.turnSpeed * 0.5; // Rotation douce en Y
-    } 
+        airplane.rotation.y += controls.turnSpeed * 0.5;
+    }
     else if (controls.keys['arrowright']) {
         controls.targetRoll = -maxRollAngle;
-        airplane.rotation.y -= controls.turnSpeed * 0.5; // Rotation douce en Y
+        airplane.rotation.y -= controls.turnSpeed * 0.5;
     }
     else {
         controls.targetRoll = 0;
     }
 
-    // Lissage du roulis (inchangé)
     airplane.rotation.z += (controls.targetRoll - airplane.rotation.z) * 0.1;
 
-    // 2. Nouveau : Tangage (20° avant/arrière)
-    const maxPitchAngle = THREE.MathUtils.degToRad(20); // 20° max
+    const maxPitchAngle = THREE.MathUtils.degToRad(20);
     if (controls.keys['s']) {
-        controls.targetPitch = maxPitchAngle; // Avant vers le haut
-    } 
+        controls.targetPitch = maxPitchAngle;
+    }
     else if (controls.keys['x']) {
-        controls.targetPitch = -maxPitchAngle; // Avant vers le bas
+        controls.targetPitch = -maxPitchAngle;
     }
     else {
         controls.targetPitch = 0;
     }
-    
-    // Lissage du tangage
+
     airplane.rotation.x += (controls.targetPitch - airplane.rotation.x) * 0.1;
 
-    // Mouvement (inchangé)
     const direction = new THREE.Vector3(0, 0, -1);
     direction.applyQuaternion(airplane.quaternion);
     airplane.position.add(direction.multiplyScalar(controls.speed));
 
-    // Caméra (inchangé)
     const cameraOffset = new THREE.Vector3(0, 3, 10);
     cameraOffset.applyQuaternion(airplane.quaternion);
     camera.position.copy(airplane.position).add(cameraOffset);
     camera.lookAt(airplane.position);
 
+    // Animation eau (NOUVEAU)
+    waterTexture.offset.x += 0.0005;
+    waterTexture.offset.y += 0.0005;
+
+    animateClouds(); // Déplace les nuages
+    updateSky(); // Juste avant renderer.render()
+
     renderer.render(scene, camera);
 }
+// ▲▲▲ CYCLE JOUR/NUIT ▲▲▲
+let timeOfDay = 0;
+const dayColor = new THREE.Color(0x87CEEB);
+const nightColor = new THREE.Color(0x0a0a20);
+
+function updateSky() {
+    timeOfDay += 0.0001;
+    const t = Math.sin(timeOfDay) * 0.5 + 0.5; // Oscille entre 0 et 1
+
+    // Interpolation couleur ciel
+    sky.material.color.lerpColors(dayColor, nightColor, t);
+
+    // Étoiles la nuit
+    stars.visible = t > 0.7;
+}
+// ▲▲▲ FIN D'AJOUT ▲▲▲
 
 // Démarrer
 animate();
 
-// Redimensionnement
 window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
