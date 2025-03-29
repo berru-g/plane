@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>fly Simulator</title>
     <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+
         #ui {
             position: absolute;
             top: 10px;
@@ -15,6 +23,7 @@
             padding: 10px;
             border-radius: 5px;
         }
+
         #loading {
             position: absolute;
             top: 50%;
@@ -22,14 +31,29 @@
             transform: translate(-50%, -50%);
             color: white;
             font-size: 20px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             padding: 20px;
             border-radius: 10px;
         }
-        a {text-decoration:none;color:aquamarine;}
+
+        a {
+            text-decoration: none;
+            color: aquamarine;
+        }
     </style>
 </head>
+
 <body>
+    <audio id="windSound" loop>
+        <source src="/avion/mixkit-lil-sky-beats-299.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.getElementById('windSound').volume = 0.8;
+        window.addEventListener('click', () => {
+            document.getElementById('windSound').play(); // Démarre au premier clic
+        });
+    </script>
     <div id="ui">
         CONTROLES : ↑/↓ Accélérer/Décélérer - ←/→ Tourner (roulis 35°) - S/X Monter/Descendre
     </div>
@@ -39,4 +63,5 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
     <script src="game.js"></script>
 </body>
+
 </html>

@@ -78,10 +78,29 @@ const skyMaterial = new THREE.MeshBasicMaterial({
 const sky = new THREE.Mesh(skyGeometry, skyMaterial);
 scene.add(sky);
 
+// ▲▲▲ ÉTOILES ▲▲▲
+const starsGeometry = new THREE.BufferGeometry();
+const starsMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 0.5 });
+const starsPositions = [];
+
+for (let i = 0; i < 10000; i++) {
+    starsPositions.push(
+        Math.random() * 2000 - 1000,
+        Math.random() * 2000 - 1000,
+        Math.random() * 2000 - 1000
+    );
+}
+
+starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsPositions, 3));
+const stars = new THREE.Points(starsGeometry, starsMaterial);
+stars.visible = false;
+scene.add(stars);
+
+
 // ▲▲▲ NUAGES ET CIEL AMÉLIORÉ ▲▲▲
 // 1. Nouveau ciel avec dégradé //
 const skyTexture = new THREE.TextureLoader().load('https://github.com/berru-g/assoberru/main/src-img/cosmos.png?raw=true');
-scene.background = new THREE.Color(0x87CEEB); 
+scene.background = new THREE.Color(0x87CEEB);
 scene.background = skyTexture;
 
 // 2. Nuages (particules)
@@ -132,7 +151,7 @@ positions.needsUpdate = true;
 
 const ground = new THREE.Mesh(
     groundGeometry,
-    new THREE.MeshStandardMaterial({ 
+    new THREE.MeshStandardMaterial({
         map: grassTexture,
         side: THREE.DoubleSide,
         roughness: 0.8
@@ -152,9 +171,10 @@ const waterMaterial = new THREE.MeshStandardMaterial({
 });
 
 const lakes = [
-    { x: -1500, z: 2000, width: 800, height: 1200, rotation: 0.2 },
+    { x: -1500, z: 2000, width: 800, height: 200, rotation: 0.2 },
     { x: 1800, z: -1000, width: 1500, height: 800, rotation: -0.1 },
-    { x: 500, z: 2500, width: 1000, height: 1000, rotation: 0 }
+    { x: 500, z: 2500, width: 1000, height: 1000, rotation: 0 },
+    { x: -1000, z: 1900, width: 1200, height: 1800, rotation: 0.4 }
 ];
 
 lakes.forEach(lake => {
@@ -169,7 +189,7 @@ lakes.forEach(lake => {
 // 6. Contrôles (existant inchangé)
 const controls = {
     speed: 0.5,
-    maxSpeed: 4,
+    maxSpeed: 7,
     minSpeed: 0.1,
     turnSpeed: 0.02,
     pitchSpeed: 0.015,
@@ -188,7 +208,7 @@ document.addEventListener('keyup', (e) => {
 // 8. Animation (avec ajout animation eau)
 function animate() {
     requestAnimationFrame(animate);
-    
+
     if (!airplane) return;
 
     // Contrôles existants inchangés...
@@ -198,7 +218,7 @@ function animate() {
     if (controls.keys['arrowleft']) {
         controls.targetRoll = maxRollAngle;
         airplane.rotation.y += controls.turnSpeed * 0.5;
-    } 
+    }
     else if (controls.keys['arrowright']) {
         controls.targetRoll = -maxRollAngle;
         airplane.rotation.y -= controls.turnSpeed * 0.5;
@@ -212,14 +232,14 @@ function animate() {
     const maxPitchAngle = THREE.MathUtils.degToRad(20);
     if (controls.keys['s']) {
         controls.targetPitch = maxPitchAngle;
-    } 
+    }
     else if (controls.keys['x']) {
         controls.targetPitch = -maxPitchAngle;
     }
     else {
         controls.targetPitch = 0;
     }
-    
+
     airplane.rotation.x += (controls.targetPitch - airplane.rotation.x) * 0.1;
 
     const direction = new THREE.Vector3(0, 0, -1);
@@ -236,9 +256,26 @@ function animate() {
     waterTexture.offset.y += 0.0005;
 
     animateClouds(); // Déplace les nuages
+    updateSky(); // Juste avant renderer.render()
 
     renderer.render(scene, camera);
 }
+// ▲▲▲ CYCLE JOUR/NUIT ▲▲▲
+let timeOfDay = 0;
+const dayColor = new THREE.Color(0x87CEEB);
+const nightColor = new THREE.Color(0x0a0a20);
+
+function updateSky() {
+    timeOfDay += 0.0001;
+    const t = Math.sin(timeOfDay) * 0.5 + 0.5; // Oscille entre 0 et 1
+
+    // Interpolation couleur ciel
+    sky.material.color.lerpColors(dayColor, nightColor, t);
+
+    // Étoiles la nuit
+    stars.visible = t > 0.7;
+}
+// ▲▲▲ FIN D'AJOUT ▲▲▲
 
 // Démarrer
 animate();
