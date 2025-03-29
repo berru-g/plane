@@ -24,14 +24,13 @@ loader.load(
         airplane = gltf.scene;
         
         // 1. Taille (déjà bon avec 0.05)
-        airplane.scale.set(0.05, 0.05, 0.05);
+        airplane.scale.set(0.7, 0.7, 0.7);
+
+        // Rotation de 180° sur l'axe X (comme retourner une feuille)
+        airplane.rotation.Y = Math.PI; // ← Ligne clé
         
         // 2. Correction rotation initiale
-        airplane.rotation.set(
-            -2,  // -15° en radians (redressement)
-            Math.PI, // Demi-tour (inversion sens)
-            0       // Pas de roulis initial
-        );
+        airplane.rotation.set(Math.PI, Math.PI, 0); // X:180° + Y:180°
         
         scene.add(airplane);
         document.getElementById('loading').style.display = 'none';
@@ -108,7 +107,7 @@ scene.add(ground);
 // 6. Contrôles
 const controls = {
     speed: 0.5,
-    maxSpeed: 2,
+    maxSpeed: 4,
     minSpeed: 0.1,
     turnSpeed: 0.02,
     pitchSpeed: 0.015,
