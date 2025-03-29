@@ -24,7 +24,7 @@ loader.load(
         airplane = gltf.scene;
         
         // 1. Taille (déjà bon avec 0.05)
-        airplane.scale.set(0.7, 0.7, 0.7);
+        airplane.scale.set(7, 7, 7);
 
         // Rotation de 180° sur l'axe X (comme retourner une feuille)
         airplane.rotation.Y = Math.PI; // ← Ligne clé
