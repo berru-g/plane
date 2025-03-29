@@ -18,22 +18,28 @@ const maxRollAngle = THREE.MathUtils.degToRad(35); // 35° de roulis
 // 4. Chargement du modèle 3D (Porco Rosso)
 const loader = new THREE.GLTFLoader();
 loader.load(
-    '/porco_plane.glb', // Remplacez par l'URL réel
+    'https://raw.githubusercontent.com/berru-g/plane/main/avion/cessna172.glb',
+    //'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Parrot.glb',
     (gltf) => {
         airplane = gltf.scene;
-        airplane.scale.set(0.5, 0.5, 0.5);
-        airplane.rotation.set(0, Math.PI, 0); // Orientation initiale
+        
+        // 1. Taille (déjà bon avec 0.05)
+        airplane.scale.set(0.05, 0.05, 0.05);
+        
+        // 2. Correction rotation initiale
+        airplane.rotation.set(
+            -2,  // -15° en radians (redressement)
+            Math.PI, // Demi-tour (inversion sens)
+            0       // Pas de roulis initial
+        );
+        
         scene.add(airplane);
         document.getElementById('loading').style.display = 'none';
-        resetPosition();
     },
     undefined,
-    (error) => {
-        console.error("Erreur de chargement :", error);
-        document.getElementById('loading').textContent = "Erreur de chargement. Utilisation d'un modèle simplifié...";
-        createFallbackAirplane();
-    }
+    (error) => console.error(error)
 );
+
 
 function createFallbackAirplane() {
     // Modèle de secours (cube stylisé)
