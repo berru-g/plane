@@ -122,8 +122,8 @@ const waterTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoo
 waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
 
 // Ciel
-const skyTexture = textureLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/ciel-nuage.webp');
-const skyGeometry = new THREE.SphereGeometry(8000, 32, 32);
+const skyTexture = textureLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/golden_gate_hills_4k.exr');
+const skyGeometry = new THREE.SphereGeometry(5000, 32, 32);
 const skyMaterial = new THREE.MeshBasicMaterial({
     color: 0x87CEEB,
     side: THREE.BackSide
@@ -193,7 +193,7 @@ function animateBirds() {
 }
 
 // Nuages
-const cloudTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/cloud.png');
+const cloudTexture = new THREE.TextureLoader().load('https://github.com/berru-g/plane/blob/main/avion/sunrise.jpg?raw=true');
 const cloudMaterial = new THREE.MeshLambertMaterial({
     map: cloudTexture,
     transparent: true,
@@ -264,7 +264,7 @@ const lakes = [
     { x: -1500, z: 2000, width: 800, height: 200, rotation: 0.2 },
     { x: 1800, z: -1000, width: 1500, height: 800, rotation: -0.1 },
     { x: 500, z: 2500, width: 1000, height: 1000, rotation: 0 },
-    { x: -1000, z: 1900, width: 1200, height: 1800, rotation: 0.4 }
+    { x: -7000, z: 1900, width: 1900, height: 1800, rotation: 0.4 }
 ];
 
 lakes.forEach(lake => {
