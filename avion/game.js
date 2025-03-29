@@ -30,22 +30,22 @@ const sounds = {
 };
 
 // Chargement des sons (remplacez par vos URLs)
-soundLoader.load('avion\prop-plane-14513.mp3', (buffer) => {
+soundLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/prop-plane-14513.mp3', (buffer) => {
     sounds.left.setBuffer(buffer);
     sounds.left.setRefDistance(20);
 });
 
-soundLoader.load('avion\prop-plane-14513.mp3', (buffer) => {
+soundLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/prop-plane-14513.mp3', (buffer) => {
     sounds.right.setBuffer(buffer);
     sounds.right.setRefDistance(20);
 });
 
-soundLoader.load('/small-plane-passing-by-264944.mp3', (buffer) => {
+soundLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/small-plane-passing-by-264944.mp3', (buffer) => {
     sounds.up.setBuffer(buffer);
     sounds.up.setRefDistance(20);
 });
 
-soundLoader.load('https://assets.codepen.io/21542/wind-down.mp3', (buffer) => {
+soundLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/prop-plane-14513.mp3', (buffer) => {
     sounds.down.setBuffer(buffer);
     sounds.down.setRefDistance(20);
 });
@@ -122,7 +122,8 @@ const waterTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoo
 waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
 
 // Ciel
-const skyGeometry = new THREE.SphereGeometry(5000, 32, 32);
+const skyTexture = textureLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/ciel-nuage.webp');
+const skyGeometry = new THREE.SphereGeometry(8000, 32, 32);
 const skyMaterial = new THREE.MeshBasicMaterial({
     color: 0x87CEEB,
     side: THREE.BackSide
