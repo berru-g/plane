@@ -112,7 +112,7 @@ function resetPosition() {
 
 // 6. Environnement
 const textureLoader = new THREE.TextureLoader();
-const grassTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/terrain/grasslight-big.jpg');
+const grassTexture = textureLoader.load('');
 grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
 grassTexture.repeat.set(30, 30);
 // lac
@@ -120,7 +120,7 @@ const waterTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoo
 waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
 
 // Ciel
-const skyTexture = textureLoader.load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/sunrise.jpg');
+const skyTexture = textureLoader.load('https://raw.githubusercontent.com/berru-g/plane/refs/heads/main/avion/sunrise.jpg');
 const skyGeometry = new THREE.SphereGeometry(5000, 32, 32);
 const skyMaterial = new THREE.MeshBasicMaterial({
     color: 0x87CEEB,

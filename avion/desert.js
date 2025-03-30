@@ -114,19 +114,22 @@ function resetPosition() {
 // 6. Nouvel Environnement
 
 // Ciel réaliste avec texture HD
-const skyTexture = new THREE.TextureLoader().load('https://github.com/berru-g/plane/raw/refs/heads/main/avion/sunrise.jpg');
+const skyTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/berru-g/plane/refs/heads/main/avion/sunrise.jpg');
 skyTexture.mapping = THREE.EquirectangularReflectionMapping;
 skyTexture.encoding = THREE.sRGBEncoding;
+//https://cdn.polyhaven.com/asset_img/primary/cape_hill.png?height=760
+//https://polyhaven.com/a/industrial_sunset_02_puresky
+//https://cdn.polyhaven.com/asset_img/primary/rogland_clear_night.png?height=760
 
 const skyMaterial = new THREE.MeshBasicMaterial({
     map: skyTexture,
     side: THREE.BackSide
 });
-const skyGeometry = new THREE.SphereGeometry(5000, 64, 64);
+const skyGeometry = new THREE.SphereGeometry(10000, 320, 320);//=map
 const sky = new THREE.Mesh(skyGeometry, skyMaterial);
 scene.add(sky);
 
-// Brouillard réaliste
+scene.background = null; // Désactive tout fond coloré
 scene.fog = new THREE.FogExp2(0x87CEEB, 0.0002);
 
 // Nuages volumineux et réalistes
@@ -149,10 +152,9 @@ for (let i = 0; i < cloudCount; i++) {
 cloudGeometry.setAttribute('position', new THREE.Float32BufferAttribute(cloudPositions, 3));
 cloudGeometry.setAttribute('size', new THREE.Float32BufferAttribute(cloudSizes, 1));
 
-const cloudTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/sprites/cloud.png');
+const cloudTexture = new THREE.TextureLoader().load('#');
 const cloudMaterial = new THREE.PointsMaterial({
     map: cloudTexture,
-    color: 0xffffff,
     size: 1,
     transparent: true,
     opacity: 0.8,
@@ -206,21 +208,22 @@ function generateProceduralTerrain() {
     terrainGeometry.computeVertexNormals();
     
     // Textures du terrain
-    const grassTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/terrain/grasslight-big.jpg');
+    const grassTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/refs/heads/dev/examples/textures/terrain/grasslight-big.jpg');
     grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
-    grassTexture.repeat.set(terrainSize / 1000, terrainSize / 1000);
-    
-    const rockTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/terrain/rock.jpg');
+    grassTexture.repeat.set(terrainSize / 100, terrainSize / 100);
+    //grassTexture.repeat.set(30, 30);
+
+    const rockTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/refs/heads/master/examples/textures/noises/perlin/128x128.png');
     rockTexture.wrapS = rockTexture.wrapT = THREE.RepeatWrapping;
-    rockTexture.repeat.set(terrainSize / 1000, terrainSize / 1000);
-    
+    rockTexture.repeat.set(terrainSize / 100, terrainSize / 100);
+    //rockTexture.repeat.set(30, 30);
     // Matériau avec mélange de textures selon l'altitude
     const terrainMaterial = new THREE.MeshStandardMaterial({
         vertexColors: true,
         wireframe: false,
         flatShading: false,
         side: THREE.DoubleSide,
-        metalness: 0.0,
+        metalness: 0.2,
         roughness: 1.0
     });
     
@@ -386,8 +389,8 @@ const controls = {
     maxSpeed: 15,
     minSpeed: 0.1,
     turnSpeed: 0.02,
-    pitchSpeed: 0.2,
-    targetRoll: 4,
+    pitchSpeed: 5,
+    targetRoll: 0,
     keys: {},
     lastDirection: null
 };
@@ -505,12 +508,3 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-// Effet d'écran vieillot (inchangé)
-setInterval(() => {
-    if (Math.random() > 0.9) {
-        document.querySelectorAll('.hud-value').forEach(el => {
-            el.style.opacity = 0.5 + Math.random() * 0.5;
-        });
-    }
-}, 300);
